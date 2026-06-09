@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/radwa/Projects/cpp/dns-resolver/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -1,0 +1,4 @@
+/home/radwa/Projects/cpp/dns-resolver/build/CMakeFiles/app.dir
+/home/radwa/Projects/cpp/dns-resolver/build/CMakeFiles/server.dir
+/home/radwa/Projects/cpp/dns-resolver/build/CMakeFiles/edit_cache.dir
+/home/radwa/Projects/cpp/dns-resolver/build/CMakeFiles/rebuild_cache.dir
