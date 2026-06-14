@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <bitset>
 #include <cstdint>
+#include <sys/ucontext.h>
 using namespace std;
 
 struct Flags {
@@ -70,6 +71,23 @@ public:
   bool hasTrauncation() { return header.flags.isTruncated; }
 
   bool hasError() { return header.flags.error_code.to_string() == "0000"; }
+
+	string getError() {
+		switch (header.flags.error_code.to_ulong()){
+			case 0:
+				return "NOERROR";
+			case 1:
+				return "FORMERROR";
+			case 2:
+				return "SERVFAIL";
+			case 3:
+				return "NXDOMAIN";
+			case 4:
+				return "NOTIMP";
+			case 5:
+				return "REFUSED";
+		}
+	}
 
   bool hasSameID(uint16_t id) { return header.xid == id; }
 
