@@ -1,6 +1,8 @@
+#include "RecordResolver.h"
 #include <bits/stdc++.h>
 #include <bitset>
 #include <cstdint>
+#include <sys/types.h>
 #include <sys/ucontext.h>
 using namespace std;
 
@@ -23,17 +25,40 @@ struct Header {
   uint16_t additional_number;
 };
 
+const int HEADER_BYTES = 12;
+
 class ResponseResolver {
 private:
   Header header;
+  vector<Record> an_records;
+  vector<Record> ns_records;
+  vector<Record> add_records;
 
 public:
-  ResponseResolver(vector<uint8_t>::iterator begin,
-                   vector<uint8_t>::iterator end) {
-    vector<uint8_t> header_bits;
-    for (auto it = begin; it != end; it++)
-      header_bits.push_back(*it);
-    header = resolveHeader(header_bits);
+  ResponseResolver(vector<uint8_t> response) {
+    vector<uint8_t> header_bytes = getHeaderBytes(response);
+    header = resolveHeader(header_bytes);
+    vector<uint8_t> records_bytes = getRecordsBytes(response);
+    RecordResolver record_resolver(records_bytes, header.answer_number, header.authority_number, header.additional_number);
+    an_records = record_resolver.getAnRecords();
+    ns_records = record_resolver.getNsRecords();
+    add_records = record_resolver.getAddRecords();
+  }
+
+  vector<uint8_t> getHeaderBytes(vector<uint8_t> response) {
+    vector<uint8_t> header_bytes;
+    for (auto it = response.begin(); it != response.begin() + HEADER_BYTES + 1;
+         it++)
+      header_bytes.push_back(*it);
+    return header_bytes;
+  }
+
+  vector<uint8_t> getRecordsBytes(vector<uint8_t> response) {
+		int i=HEADER_BYTES;
+		while (response[i++] != 0x00) {}
+		i+=4;
+		vector<uint8_t> records_bytes(response.begin()+i, response.end());
+    return records_bytes;
   }
 
   uint16_t convertBytestoint(uint8_t x, uint8_t y) {
@@ -55,16 +80,16 @@ public:
     return flag_final;
   }
 
-  Header resolveHeader(vector<uint8_t> header_bits) {
+  Header resolveHeader(vector<uint8_t> header_bytes) {
     Header head;
-    head.xid = convertBytestoint(header_bits[0], header_bits[1]);
-    uint16_t flags_int = convertBytestoint(header_bits[2], header_bits[3]);
+    head.xid = convertBytestoint(header_bytes[0], header_bytes[1]);
+    uint16_t flags_int = convertBytestoint(header_bytes[2], header_bytes[3]);
     head.flags = resolveFlags(flags_int);
-    head.question_number = convertBytestoint(header_bits[4], header_bits[5]);
-    head.answer_number = convertBytestoint(header_bits[6], header_bits[7]);
-    head.authority_number = convertBytestoint(header_bits[8], header_bits[9]);
+    head.question_number = convertBytestoint(header_bytes[4], header_bytes[5]);
+    head.answer_number = convertBytestoint(header_bytes[6], header_bytes[7]);
+    head.authority_number = convertBytestoint(header_bytes[8], header_bytes[9]);
     head.additional_number =
-        convertBytestoint(header_bits[10], header_bits[11]);
+        convertBytestoint(header_bytes[10], header_bytes[11]);
     return head;
   }
 
@@ -72,24 +97,30 @@ public:
 
   bool hasError() { return header.flags.error_code.to_string() == "0000"; }
 
-	string getError() {
-		switch (header.flags.error_code.to_ulong()){
-			case 0:
-				return "NOERROR";
-			case 1:
-				return "FORMERROR";
-			case 2:
-				return "SERVFAIL";
-			case 3:
-				return "NXDOMAIN";
-			case 4:
-				return "NOTIMP";
-			case 5:
-				return "REFUSED";
-		}
-	}
+  string getError() {
+    switch (header.flags.error_code.to_ulong()) {
+    case 0:
+      return "NOERROR";
+    case 1:
+      return "FORMERROR";
+    case 2:
+      return "SERVFAIL";
+    case 3:
+      return "NXDOMAIN";
+    case 4:
+      return "NOTIMP";
+    case 5:
+      return "REFUSED";
+    }
+  }
 
   bool hasSameID(uint16_t id) { return header.xid == id; }
 
   Header getHeader() { return header; }
+
+  vector<Record> getAnswerRecords() { return an_records; }
+
+  vector<Record> getNSRecords() { return ns_records; }
+
+  vector<Record> getAdditionalRecords() { return add_records; }
 };

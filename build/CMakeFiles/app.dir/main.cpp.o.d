@@ -2,6 +2,7 @@ CMakeFiles/app.dir/main.cpp.o: \
  /home/radwa/Projects/cpp/dns-resolver/main.cpp \
  /usr/include/stdc-predef.h \
  /home/radwa/Projects/cpp/dns-resolver/ResponseResolver.h \
+ /home/radwa/Projects/cpp/dns-resolver/RecordResolver.h \
  /usr/include/c++/16.1.1/x86_64-pc-linux-gnu/bits/stdc++.h \
  /usr/include/c++/16.1.1/cctype \
  /usr/include/c++/16.1.1/x86_64-pc-linux-gnu/bits/c++config.h \

@@ -20,10 +20,10 @@ int main() {
       0x00, 0x00, // Authority RRs
       0x00, 0x01, // Aditional RRs
 
-      0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c,
-      0x65, 0x03, 0x63, 0x6f, 0x6d, 0x00, // QNAME
-      0x00, 0x01,                         // QTYPE
-      0x00, 0x01,                         // QCLASS
+      0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
+      0x00,       // QNAME
+      0x00, 0x01, // QTYPE
+      0x00, 0x01, // QCLASS
 
       0x00,       // NAME = root
       0x00, 0x29, // TYPE = OPT (41)
@@ -53,20 +53,26 @@ int main() {
       socket.receive_from(boost::asio::buffer(recv_buf), sender_endpoint);
 
   // Resolving DNS Response
-  int header_bytes = 12;
-  ResponseResolver resolver(recv_buf.begin(),
-                            recv_buf.begin() + header_bytes + 1);
+  ResponseResolver resolver(recv_buf);
   Header header = resolver.getHeader();
-  cout << std::hex << header.xid << endl;
-  cout << std::dec << header.question_number << endl;
   cout << header.answer_number << endl;
   cout << header.authority_number << endl;
   cout << header.additional_number << endl;
-  cout << header.flags.isResponse << endl;
-  cout << header.flags.opcode << endl;
-  cout << header.flags.isTruncated << endl;
-  cout << header.flags.recursionAvailable << endl;
-  cout << header.flags.recursionDesired << endl;
-  cout << header.flags.error_code << endl;
+	vector<Record> an_records = resolver.getAnswerRecords();
+	cout << "answer size: " << an_records.size() << endl;
+	vector<Record> ns_records = resolver.getNSRecords();
+	cout << ns_records[0].class_name << endl;
+	cout << ns_records[0].type << endl;
+	cout << ns_records[0].time_to_live << endl;
+	cout << ns_records[0].data_len << endl;
+	cout << ns_records[0].data[0] << endl;
+  // cout << std::hex << header.xid << endl;
+  // cout << std::dec << header.question_number << endl;
+  // cout << header.flags.isResponse << endl;
+  // cout << header.flags.opcode << endl;
+  // cout << header.flags.isTruncated << endl;
+  // cout << header.flags.recursionAvailable << endl;
+  // cout << header.flags.recursionDesired << endl;
+  // cout << header.flags.error_code << endl;
   return 0;
 }
