@@ -11,7 +11,7 @@ public:
   uint16_t class_name;
   uint32_t time_to_live;
   uint16_t data_len;
-  vector<uint8_t> data;
+  vector<vector<uint8_t>> data;
 };
 
 class RecordResolver {
@@ -89,8 +89,9 @@ public:
 			
 			index += 10;
 		
+			vector<uint8_t> unresolved_data;
 			for(int i=0; i<record.data_len; i++, index++) {
-				record.data.push_back(response[index]);
+				unresolved_data.push_back(response[index]);
 				cout << "data: " << hex << bitset<8>(response[index]).to_ulong() << endl;
 			}
 
@@ -103,11 +104,19 @@ public:
 			cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
 			cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
 			cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
-			cout << "data: ";
-			for(auto x : record.data)
+			cout << "unresolved data: ";
+			for(auto x : unresolved_data)
 				cout << hex << bitset<8>(x).to_ulong() << " ";
 			cout << endl;
 
+			record.data = resolveNSData(unresolved_data, response);
+
+			cout << "Resolved Data: ";
+			for(auto label : record.data){
+				for(auto x : label)
+					cout << char(bitset<8>(x).to_ulong()) << " ";
+				cout << endl;
+			}
 			return index;
 	}
 
@@ -119,7 +128,7 @@ public:
 
 		while((label_len >> 6) != 0x03 && label_len != 0x00){
 			vector<uint8_t> label;
-			for(int i=0; i<label_len; i++) label.push_back(data[label_index+i]);
+			for(int i=1; i<=label_len; i++) label.push_back(data[label_index+i]);
 			resolvedData.push_back(label);
 			label_index += label_len + 1;
 			label_len = data[label_index];
@@ -127,13 +136,13 @@ public:
 
 		if((label_len >> 6) == 0x03) {
 			// Go to Pointer Byte
-			uint16_t addr = EightToSixteen(label_len, response[++label_index]);
+			uint16_t addr = EightToSixteen(label_len, data[++label_index]);
 			int index = (addr ^ 0xC000);
+			cout << "pointer index: " << dec << index << endl; 
 			label_len = response[index];
 			while(label_len != 0x00){
 					vector<uint8_t> label;
-					index++;
-					for(int i=0; i<label_len; i++) label.push_back(response[index+i]);
+					for(int i=1; i<=label_len; i++) label.push_back(response[index+i]);
 					resolvedData.push_back(label);
 					index += label_len + 1;
 					label_len = response[index];
