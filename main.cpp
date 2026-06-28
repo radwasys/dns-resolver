@@ -1,9 +1,9 @@
 #include "ResponseResolver.h"
-#include <array>
 #include <bits/stdc++.h>
 #include <boost/asio.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <cstdint>
+#include <vector>
 using namespace std;
 using boost::asio::ip::udp;
 
@@ -55,17 +55,16 @@ int main() {
   // Resolving DNS Response
   ResponseResolver resolver(recv_buf);
   Header header = resolver.getHeader();
-  cout << header.answer_number << endl;
-  cout << header.authority_number << endl;
-  cout << header.additional_number << endl;
+  cout << "answer size from header: " << header.answer_number << endl;
+  cout << "ns size from header: " << header.authority_number << endl;
+  cout << "additonal size from header: " << header.additional_number << endl;
+
 	vector<Record> an_records = resolver.getAnswerRecords();
-	cout << "answer size: " << an_records.size() << endl;
 	vector<Record> ns_records = resolver.getNSRecords();
-	cout << ns_records[0].class_name << endl;
-	cout << ns_records[0].type << endl;
-	cout << ns_records[0].time_to_live << endl;
-	cout << ns_records[0].data_len << endl;
-	cout << ns_records[0].data[0] << endl;
+	vector<Record> add_records = resolver.getAdditionalRecords();
+	cout << "answer size: " << an_records.size() << endl;
+	cout << "NS size: " << ns_records.size() << endl;
+	cout << "additional size: " << add_records.size() << endl;
   // cout << std::hex << header.xid << endl;
   // cout << std::dec << header.question_number << endl;
   // cout << header.flags.isResponse << endl;

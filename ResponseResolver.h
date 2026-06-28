@@ -36,10 +36,16 @@ private:
 
 public:
   ResponseResolver(vector<uint8_t> response) {
+		// Get Header
     vector<uint8_t> header_bytes = getHeaderBytes(response);
     header = resolveHeader(header_bytes);
-    vector<uint8_t> records_bytes = getRecordsBytes(response);
-    RecordResolver record_resolver(records_bytes, header.answer_number, header.authority_number, header.additional_number);
+		// Get Records
+    int start_index = getStartOfRecords(response);
+		// Resolve Records
+		cout << "check before records" << endl;
+    RecordResolver record_resolver(response, start_index, header.answer_number, header.authority_number, header.additional_number);
+	  cout << "check after records" << endl;
+	  // Separate Records
     an_records = record_resolver.getAnRecords();
     ns_records = record_resolver.getNsRecords();
     add_records = record_resolver.getAddRecords();
@@ -47,18 +53,21 @@ public:
 
   vector<uint8_t> getHeaderBytes(vector<uint8_t> response) {
     vector<uint8_t> header_bytes;
-    for (auto it = response.begin(); it != response.begin() + HEADER_BYTES + 1;
+    for (auto it = response.begin(); it != response.begin() + HEADER_BYTES;
          it++)
       header_bytes.push_back(*it);
     return header_bytes;
   }
 
-  vector<uint8_t> getRecordsBytes(vector<uint8_t> response) {
-		int i=HEADER_BYTES;
-		while (response[i++] != 0x00) {}
-		i+=4;
-		vector<uint8_t> records_bytes(response.begin()+i, response.end());
-    return records_bytes;
+  int getStartOfRecords(vector<uint8_t> response) {
+		int start_index = HEADER_BYTES;
+		int label_len = response[HEADER_BYTES];
+		while(label_len != 0x00){
+				start_index += label_len + 1;
+				label_len = response[start_index];
+		}
+		start_index += 4; // For Class and Type
+    return start_index+1;
   }
 
   uint16_t convertBytestoint(uint8_t x, uint8_t y) {
