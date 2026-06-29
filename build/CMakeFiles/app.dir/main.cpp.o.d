@@ -354,6 +354,7 @@ CMakeFiles/app.dir/main.cpp.o: \
  /usr/include/c++/16.1.1/bits/fs_ops.h \
  /usr/include/c++/16.1.1/memory_resource /usr/include/c++/16.1.1/barrier \
  /usr/include/c++/16.1.1/latch /usr/include/c++/16.1.1/syncstream \
+ /home/radwa/Projects/cpp/dns-resolver/ServerContactor.h \
  /usr/include/boost/asio.hpp \
  /usr/include/boost/asio/any_completion_executor.hpp \
  /usr/include/boost/asio/detail/config.hpp \

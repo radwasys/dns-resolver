@@ -4,6 +4,7 @@
 CMakeFiles/app.dir/main.cpp.o: /home/radwa/Projects/cpp/dns-resolver/main.cpp \
   /home/radwa/Projects/cpp/dns-resolver/RecordResolver.h \
   /home/radwa/Projects/cpp/dns-resolver/ResponseResolver.h \
+  /home/radwa/Projects/cpp/dns-resolver/ServerContactor.h \
   /usr/include/alloca.h \
   /usr/include/arpa/inet.h \
   /usr/include/asm-generic/bitsperlong.h \
@@ -1667,6 +1668,8 @@ CMakeFiles/app.dir/main.cpp.o:
 
 /usr/include/boost/asio/recycling_allocator.hpp:
 
+/usr/include/boost/asio/read.hpp:
+
 /usr/include/boost/asio/impl/use_awaitable.hpp:
 
 /usr/include/boost/asio/ip/bad_address_cast.hpp:
@@ -2003,7 +2006,17 @@ CMakeFiles/app.dir/main.cpp.o:
 
 /usr/include/boost/asio/impl/cancel_at.hpp:
 
-/usr/include/bits/mathcalls-narrow.h:
+/usr/include/c++/16.1.1/bits/stl_set.h:
+
+/usr/include/c++/16.1.1/bits/new_throw.h:
+
+/usr/include/bits/types/clockid_t.h:
+
+/usr/include/c++/16.1.1/bits/stl_numeric.h:
+
+/usr/include/bits/wctype-wchar.h:
+
+/usr/include/bits/stdint-intn.h:
 
 /usr/include/bits/types/mbstate_t.h:
 
@@ -2133,55 +2146,9 @@ CMakeFiles/app.dir/main.cpp.o:
 
 /usr/include/boost/asio/is_read_buffered.hpp:
 
-/usr/include/boost/asio/basic_raw_socket.hpp:
+/usr/include/c++/16.1.1/bits/hashtable_policy.h:
 
-/usr/include/bits/fcntl.h:
-
-/usr/include/bits/long-double.h:
-
-/usr/include/bits/eventfd.h:
-
-/usr/include/boost/asio/detail/reactive_descriptor_service.hpp:
-
-/usr/include/boost/asio/detail/signal_set_service.hpp:
-
-/usr/include/boost/config.hpp:
-
-/usr/include/bits/types/sigval_t.h:
-
-/usr/include/boost/asio/detail/recycling_allocator.hpp:
-
-/usr/include/asm-generic/socket.h:
-
-/usr/include/asm/posix_types.h:
-
-/usr/include/bits/time.h:
-
-/usr/include/asm/posix_types_64.h:
-
-/usr/include/bits/types/struct_FILE.h:
-
-/usr/include/bits/environments.h:
-
-/usr/include/c++/16.1.1/regex:
-
-/usr/include/boost/asio/detail/descriptor_write_op.hpp:
-
-/usr/include/boost/asio/detail/completion_payload_handler.hpp:
-
-/usr/include/bits/local_lim.h:
-
-/usr/include/c++/16.1.1/bits/stl_set.h:
-
-/usr/include/c++/16.1.1/bits/new_throw.h:
-
-/usr/include/bits/types/clockid_t.h:
-
-/usr/include/c++/16.1.1/bits/stl_numeric.h:
-
-/usr/include/bits/wctype-wchar.h:
-
-/usr/include/bits/stdint-intn.h:
+/usr/include/bits/confname.h:
 
 /usr/include/c++/16.1.1/bits/basic_ios.tcc:
 
@@ -2223,14 +2190,6 @@ CMakeFiles/app.dir/main.cpp.o:
 
 /usr/include/boost/asio/execution/context_as.hpp:
 
-/usr/include/bits/siginfo-consts-arch.h:
-
-/usr/include/c++/16.1.1/tuple:
-
-/usr/include/boost/asio/posix/basic_descriptor.hpp:
-
-/usr/include/bits/sigstack.h:
-
 /usr/include/bits/termios-c_lflag.h:
 
 /usr/include/c++/16.1.1/bits/specfun.h:
@@ -2248,8 +2207,6 @@ CMakeFiles/app.dir/main.cpp.o:
 /usr/include/c++/16.1.1/scoped_allocator:
 
 /usr/include/boost/asio/detail/service_registry.hpp:
-
-/usr/include/bits/sigcontext.h:
 
 /usr/include/bits/setjmp.h:
 
@@ -2293,23 +2250,67 @@ CMakeFiles/app.dir/main.cpp.o:
 
 /usr/include/bits/termios-c_iflag.h:
 
+/usr/include/bits/sigcontext.h:
+
+/home/radwa/Projects/cpp/dns-resolver/ServerContactor.h:
+
+/usr/include/boost/asio/buffered_read_stream.hpp:
+
 /usr/include/boost/asio/detail/call_stack.hpp:
+
+/usr/include/bits/environments.h:
+
+/usr/include/bits/types/struct_FILE.h:
 
 /usr/include/c++/16.1.1/bits/stl_multimap.h:
 
 /usr/include/bits/epoll.h:
 
+/usr/include/boost/asio/basic_raw_socket.hpp:
+
+/usr/include/bits/fcntl.h:
+
+/usr/include/bits/long-double.h:
+
+/usr/include/bits/eventfd.h:
+
+/usr/include/boost/asio/detail/reactive_descriptor_service.hpp:
+
+/usr/include/boost/asio/detail/signal_set_service.hpp:
+
+/usr/include/boost/config.hpp:
+
+/usr/include/bits/types/sigval_t.h:
+
+/usr/include/boost/asio/detail/recycling_allocator.hpp:
+
+/usr/include/asm-generic/socket.h:
+
+/usr/include/asm/posix_types.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/asm/posix_types_64.h:
+
+/usr/include/c++/16.1.1/regex:
+
+/usr/include/boost/asio/detail/descriptor_write_op.hpp:
+
+/usr/include/boost/asio/detail/completion_payload_handler.hpp:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/bits/sigstack.h:
+
+/usr/include/bits/siginfo-consts-arch.h:
+
+/usr/include/c++/16.1.1/tuple:
+
+/usr/include/boost/asio/posix/basic_descriptor.hpp:
+
 /usr/include/c++/16.1.1/bits/stream_iterator.h:
 
 /usr/include/bits/types/sigset_t.h:
-
-/usr/include/boost/asio/detail/posix_static_mutex.hpp:
-
-/usr/include/asm-generic/sockios.h:
-
-/usr/include/boost/asio/detail/consuming_buffers.hpp:
-
-/usr/include/boost/asio/detail/cstddef.hpp:
 
 /usr/lib/crti.o:
 
@@ -2375,9 +2376,15 @@ CMakeFiles/app.dir/main.cpp.o:
 
 /usr/include/bits/byteswap.h:
 
-/usr/include/c++/16.1.1/bits/hashtable_policy.h:
+/usr/include/boost/asio/detail/cstddef.hpp:
 
-/usr/include/bits/confname.h:
+/usr/include/boost/asio/detail/consuming_buffers.hpp:
+
+/usr/include/asm-generic/sockios.h:
+
+/usr/include/boost/asio/detail/posix_static_mutex.hpp:
+
+/usr/include/bits/mathcalls-narrow.h:
 
 /usr/include/boost/asio/serial_port_base.hpp:
 
@@ -2502,8 +2509,6 @@ CMakeFiles/app.dir/main.cpp.o:
 /usr/include/bits/posix1_lim.h:
 
 /usr/include/bits/termios-misc.h:
-
-/usr/include/boost/asio/buffered_read_stream.hpp:
 
 /usr/include/bits/errno.h:
 
@@ -3130,5 +3135,3 @@ CMakeFiles/app.dir/main.cpp.o:
 /usr/include/boost/asio/prefer.hpp:
 
 /usr/include/boost/asio/random_access_file.hpp:
-
-/usr/include/boost/asio/read.hpp:

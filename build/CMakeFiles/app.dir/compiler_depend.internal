@@ -5,6 +5,7 @@ CMakeFiles/app.dir/main.cpp.o
  /home/radwa/Projects/cpp/dns-resolver/main.cpp
  /home/radwa/Projects/cpp/dns-resolver/RecordResolver.h
  /home/radwa/Projects/cpp/dns-resolver/ResponseResolver.h
+ /home/radwa/Projects/cpp/dns-resolver/ServerContactor.h
  /usr/include/alloca.h
  /usr/include/arpa/inet.h
  /usr/include/asm-generic/bitsperlong.h

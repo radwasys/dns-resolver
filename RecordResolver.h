@@ -53,21 +53,96 @@ public:
 
   RecordResolver(vector<uint8_t> response, int start_index, int an_number, int ns_number,
                  int add_number) {
+
 		int total_records = an_number + ns_number + add_number;
 		records_bytes = vector<uint8_t>(response.begin()+start_index, response.end());
     int index = start_index;
-
-		for(int i=0; i<response.size(); i++) 
-			cout << "byte " << dec << i << ": " << hex << bitset<8>(response[i]).to_ulong() << endl; 
 
 		cout << "START OF RECORDS: " << index << endl;
 
 		for(int i=0; i < ns_number+add_number; i++){
 			Record record;
 			index = resolveRecord(response, index, record);
-			cout << "next index: " << dec << i << ", " << index << endl;
 		}	
+		printRecords();
+  }
 
+	int resolveRecord(vector<uint8_t> response, int start_index, Record& record){
+			int index = start_index;
+
+			vector<vector<uint8_t>> name_vec;
+			index = followPointer(response, start_index, name_vec);
+			
+			record.name = name_vec;
+			record.type = EightToSixteen(response[index], response[index+1]);
+			record.class_name = EightToSixteen(response[index+2], response[index+3]);
+			uint16_t ttl_first_byte = EightToSixteen(response[index+4], response[index+5]);
+			uint16_t ttl_second_byte = EightToSixteen(response[index+6], response[index+7]);
+			record.time_to_live = ((uint32_t)ttl_first_byte << 16) | ttl_second_byte;
+			record.data_len = EightToSixteen(response[index+8], response[index+9]);
+			
+			index += 10;
+		
+			vector<uint8_t> unresolved_data;
+			for(int i=0; i<record.data_len; i++, index++) {
+				unresolved_data.push_back(response[index]);
+			}
+
+			if(record.type == 2){ // NS Record
+				record.data = resolveNSData(unresolved_data, response);
+				ns_records.push_back(record);
+			} else if(record.type == 1){
+				record.data = resolveAData(unresolved_data, response);
+				a_records.push_back(record);
+			} else if(record.type == 28){
+				record.data = resolveAData(unresolved_data, response);
+				aaaa_records.push_back(record);
+			}
+			else cout << "UNIDENTIFIED: " << dec << record.type << endl;
+
+			return index;
+	}
+
+	vector<vector<uint8_t>> resolveNSData(vector<uint8_t> data, vector<uint8_t> response){
+		int label_index = 0;
+		uint8_t label_len = data[label_index];
+		
+		vector<vector<uint8_t>> resolvedData;
+
+		while((label_len >> 6) != 0x03 && label_len != 0x00){
+			vector<uint8_t> label;
+			for(int i=1; i<=label_len; i++) label.push_back(data[label_index+i]);
+			resolvedData.push_back(label);
+			label_index += label_len + 1;
+			label_len = data[label_index];
+		}
+
+		if((label_len >> 6) == 0x03) {
+			// Go to Pointer Byte
+			uint16_t addr = EightToSixteen(label_len, data[++label_index]);
+			int index = (addr ^ 0xC000);
+			label_len = response[index];
+			while(label_len != 0x00){
+					vector<uint8_t> label;
+					for(int i=1; i<=label_len; i++) label.push_back(response[index+i]);
+					resolvedData.push_back(label);
+					index += label_len + 1;
+					label_len = response[index];
+			}
+		} 
+
+		return resolvedData;
+	}
+
+	vector<vector<uint8_t>> resolveAData(vector<uint8_t> data, vector<uint8_t> response){
+			vector<vector<uint8_t>> resolvedData;
+			for(auto section : data){
+				resolvedData.push_back({section});
+			}
+			return resolvedData;
+	}
+
+	void printRecords(){
 		for(auto record : ns_records){
 			cout << "===============NS RECORD===============" << endl;
 			cout << "Record name: ";
@@ -134,88 +209,13 @@ public:
 			}
 			cout << endl;
 		}
-
-  }
-
-	int resolveRecord(vector<uint8_t> response, int start_index, Record& record){
-			int index = start_index;
-
-			vector<vector<uint8_t>> name;
-			index = followPointer(response, start_index, name);
-
-			record.name = name;
-			record.type = EightToSixteen(response[index], response[index+1]);
-			record.class_name = EightToSixteen(response[index+2], response[index+3]);
-			uint16_t ttl_first_byte = EightToSixteen(response[index+4], response[index+5]);
-			uint16_t ttl_second_byte = EightToSixteen(response[index+6], response[index+7]);
-			record.time_to_live = ((uint32_t)ttl_first_byte << 16) | ttl_second_byte;
-			record.data_len = EightToSixteen(response[index+8], response[index+9]);
-			
-			index += 10;
-		
-			vector<uint8_t> unresolved_data;
-			for(int i=0; i<record.data_len; i++, index++) {
-				unresolved_data.push_back(response[index]);
-			}
-
-			if(record.type == 2){ // NS Record
-				record.data = resolveNSData(unresolved_data, response);
-				ns_records.push_back(record);
-			} else if(record.type == 1){
-				record.data = resolveAData(unresolved_data, response);
-				a_records.push_back(record);
-			} else if(record.type == 28){
-				record.data = resolveAData(unresolved_data, response);
-				aaaa_records.push_back(record);
-			}
-			else cout << "UNIDENTIFIED: " << dec << record.type << endl;
-
-			return index;
-	}
-
-	vector<vector<uint8_t>> resolveNSData(vector<uint8_t> data, vector<uint8_t> response){
-		int label_index = 0;
-		uint8_t label_len = data[label_index];
-		
-		vector<vector<uint8_t>> resolvedData;
-
-		while((label_len >> 6) != 0x03 && label_len != 0x00){
-			vector<uint8_t> label;
-			for(int i=1; i<=label_len; i++) label.push_back(data[label_index+i]);
-			resolvedData.push_back(label);
-			label_index += label_len + 1;
-			label_len = data[label_index];
-		}
-
-		if((label_len >> 6) == 0x03) {
-			// Go to Pointer Byte
-			uint16_t addr = EightToSixteen(label_len, data[++label_index]);
-			int index = (addr ^ 0xC000);
-			label_len = response[index];
-			while(label_len != 0x00){
-					vector<uint8_t> label;
-					for(int i=1; i<=label_len; i++) label.push_back(response[index+i]);
-					resolvedData.push_back(label);
-					index += label_len + 1;
-					label_len = response[index];
-			}
-		} 
-
-		return resolvedData;
-	}
-
-	vector<vector<uint8_t>> resolveAData(vector<uint8_t> data, vector<uint8_t> response){
-			vector<vector<uint8_t>> resolvedData;
-			for(auto section : data){
-				cout << hex << bitset<8>(section).to_ulong() << endl;
-				resolvedData.push_back({section});
-			}
-			return resolvedData;
 	}
 
   vector<Record> getAnRecords() { return an_records; }
 
   vector<Record> getNsRecords() { return ns_records; }
 
-  vector<Record> getAddRecords() { return a_records; }
+  vector<Record> getARecords() { return a_records; }
+
+  vector<Record> getAAAARecords() { return aaaa_records; }
 };

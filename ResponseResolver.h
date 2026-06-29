@@ -32,23 +32,26 @@ private:
   Header header;
   vector<Record> an_records;
   vector<Record> ns_records;
-  vector<Record> add_records;
+  vector<Record> a_records;
+  vector<Record> aaaa_records;
 
 public:
   ResponseResolver(vector<uint8_t> response) {
 		// Get Header
     vector<uint8_t> header_bytes = getHeaderBytes(response);
     header = resolveHeader(header_bytes);
+
 		// Get Records
     int start_index = getStartOfRecords(response);
+
 		// Resolve Records
-		cout << "check before records" << endl;
     RecordResolver record_resolver(response, start_index, header.answer_number, header.authority_number, header.additional_number);
-	  cout << "check after records" << endl;
+
 	  // Separate Records
     an_records = record_resolver.getAnRecords();
     ns_records = record_resolver.getNsRecords();
-    add_records = record_resolver.getAddRecords();
+    a_records = record_resolver.getARecords();
+    aaaa_records = record_resolver.getAAAARecords();
   }
 
   vector<uint8_t> getHeaderBytes(vector<uint8_t> response) {
@@ -131,5 +134,7 @@ public:
 
   vector<Record> getNSRecords() { return ns_records; }
 
-  vector<Record> getAdditionalRecords() { return add_records; }
+  vector<Record> getDoubleAARecords() { return aaaa_records; }
+
+  vector<Record> getARecords() { return a_records; }
 };
