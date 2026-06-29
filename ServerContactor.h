@@ -1,8 +1,12 @@
 #include <bits/stdc++.h>
+#include <cstddef>
 using namespace std;
 #include <boost/asio.hpp>
 #include <boost/asio/ip/address.hpp>
 using boost::asio::ip::udp;
+#include "RecordResolver.h"
+
+enum ServerLevel { ROOT, SECOND };
 
 class ServerContactor {
 		private:
@@ -17,8 +21,17 @@ class ServerContactor {
 				socket.open(udp::v4());
 			}
 
-			string getRootServer(){
-					return "198.41.0.4";
+			string getIPofServer(ServerLevel srvr_lvl, Record& A_Record=nullptr){
+				string ip_addr = "";
+				if(srvr_lvl == ROOT) ip_addr = "198.41.0.4";
+				else if(srvr_lvl == SECOND) {
+						for(auto label : A_Record.data){
+								for(auto chr : label) ip_addr += to_string(int(bitset<8>(chr).to_ulong())); 
+								ip_addr += ".";
+						}
+						ip_addr = ip_addr.substr(0, ip_addr.size()-1);
+				}
+				return ip_addr;
 			}
 
 			vector<uint8_t> formQuery(){
@@ -54,7 +67,7 @@ class ServerContactor {
 			}
 
 			vector<uint8_t> sendQuery(){
-				string root_ip = getRootServer();
+				string root_ip = getIPofServer();
 				vector<uint8_t> send_buf = formQuery();
 
 				udp::endpoint receiver_endpoint(boost::asio::ip::make_address(root_ip), port);
