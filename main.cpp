@@ -47,7 +47,7 @@ int main() {
 
   socket.send_to(boost::asio::buffer(send_buf), receiver_endpoint);
 
-  vector<uint8_t> recv_buf(512);
+  vector<uint8_t> recv_buf(4096);
   udp::endpoint sender_endpoint;
   size_t len =
       socket.receive_from(boost::asio::buffer(recv_buf), sender_endpoint);

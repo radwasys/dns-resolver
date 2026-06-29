@@ -30,56 +30,43 @@ public:
     return bitset<16>(bit1 + bit2).to_ulong();
   }
 
-	int setRecordName(vector<uint8_t> response, int start_index, Record& record){
+	int followPointer(vector<uint8_t> response, int start_index, vector<vector<uint8_t>>& result){
 		uint8_t label_len = response[start_index];
-		int check = start_index;
-		if(start_index == 253) cout << "pointer: " << hex << bitset<8>(label_len).to_ulong() << endl;
 
 		while((label_len >> 6) != 0x03 && label_len != 0x00){
 			vector<uint8_t> label;
-			for(int i=0; i<label_len; i++) label.push_back(response[start_index+i]);
-			record.name.push_back(label);
+			for(int i=1; i<=label_len; i++) label.push_back(response[start_index+i]);
+			result.push_back(label);
 			start_index += label_len + 1;
 			label_len = response[start_index];
 		}
-
-		if((label_len >> 6) == 0x03) {
-			// Go to Pointer Byte
+		
+		if((label_len >> 6) == 0x03){
 			uint16_t addr = EightToSixteen(label_len, response[++start_index]);
-			int index = (addr ^ 0xC000);
-			if(check == 253) cout << "ptr index: " << hex << bitset<8>(index).to_ulong() << endl;
-			label_len = response[index];
-			while(label_len != 0x00){
-					vector<uint8_t> label;
-					for(int i=0; i<=label_len; i++) label.push_back(response[index+i]);
-					record.name.push_back(label);
-					index += label_len + 1;
-					label_len = response[index];
-			}
-		} 
-		start_index++;
-
-		return start_index;
+			int ptr_index = (addr ^ 0xC000);
+			int dummy = followPointer(response, ptr_index, result);
+		}
+		return start_index + 1;
+		
 	}
+
 
   RecordResolver(vector<uint8_t> response, int start_index, int an_number, int ns_number,
                  int add_number) {
+		int total_records = an_number + ns_number + add_number;
 		records_bytes = vector<uint8_t>(response.begin()+start_index, response.end());
-
     int index = start_index;
+
 		for(int i=0; i<response.size(); i++) 
 			cout << "byte " << dec << i << ": " << hex << bitset<8>(response[i]).to_ulong() << endl; 
-		cout << "START OF RECORDS: " << index << endl;
-		for(int i=0; i < ns_number; i++){
-			Record ns_record;
-			index = resolveRecord(response, index, ns_record);
-		}	
-		cout << "next after ns: " << index << endl;
 
-		for(int i=0; i < 2; i++){
-				Record a_record;
-				index = resolveRecord(response, index, a_record);
-		}
+		cout << "START OF RECORDS: " << index << endl;
+
+		for(int i=0; i < ns_number+add_number; i++){
+			Record record;
+			index = resolveRecord(response, index, record);
+			cout << "next index: " << dec << i << ", " << index << endl;
+		}	
 
 		for(auto record : ns_records){
 			cout << "===============NS RECORD===============" << endl;
@@ -126,13 +113,37 @@ public:
 			cout << endl;
 		}
 
+		for(auto record : aaaa_records){
+			cout << "===============AAAA RECORD===============" << endl;
+			cout << "Record name: ";
+			for(auto label : record.name){
+				for(auto chr : label)
+					cout << char(bitset<8>(chr).to_ulong());
+				cout << ".";
+			}
+			cout << endl;
+			cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
+			cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
+			cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
+			cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
+			cout << "Data: ";
+			for(auto label : record.data){
+				 for(auto chr : label)
+					 cout << dec << bitset<8>(chr).to_ulong();
+				 cout << ".";
+			}
+			cout << endl;
+		}
+
   }
 
 	int resolveRecord(vector<uint8_t> response, int start_index, Record& record){
 			int index = start_index;
-			int index_after_name = setRecordName(response, start_index, record);
 
-			index = index_after_name;
+			vector<vector<uint8_t>> name;
+			index = followPointer(response, start_index, name);
+
+			record.name = name;
 			record.type = EightToSixteen(response[index], response[index+1]);
 			record.class_name = EightToSixteen(response[index+2], response[index+3]);
 			uint16_t ttl_first_byte = EightToSixteen(response[index+4], response[index+5]);
@@ -142,13 +153,6 @@ public:
 			
 			index += 10;
 		
-			if(record.type == 1){
-				cout << "index after name: " << index_after_name << endl;
-				cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
-				cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
-				cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
-				cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
-			}
 			vector<uint8_t> unresolved_data;
 			for(int i=0; i<record.data_len; i++, index++) {
 				unresolved_data.push_back(response[index]);
@@ -158,8 +162,6 @@ public:
 				record.data = resolveNSData(unresolved_data, response);
 				ns_records.push_back(record);
 			} else if(record.type == 1){
-				for(auto x : unresolved_data) 
-					cout << "NAME: " << hex << bitset<8>(x).to_ulong() << endl;
 				record.data = resolveAData(unresolved_data, response);
 				a_records.push_back(record);
 			} else if(record.type == 28){
@@ -168,27 +170,6 @@ public:
 			}
 			else cout << "UNIDENTIFIED: " << dec << record.type << endl;
 
-			// Checks
-		//	cout << "start of name: ";
-		//	for(auto label : record.name)
-		//		for(auto chr : label) cout << char(chr) << " ";
-		//	cout << endl;
-		//	cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
-		//	cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
-		//	cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
-		//	cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
-		//	cout << "unresolved data: ";
-		//	for(auto x : unresolved_data)
-		//		cout << hex << bitset<8>(x).to_ulong() << " ";
-		//	cout << endl;
-
-
-		//	cout << "Resolved Data: ";
-		//	for(auto label : record.data){
-		//		for(auto x : label)
-		//			cout << char(bitset<8>(x).to_ulong()) << " ";
-		//		cout << endl;
-		//	}
 			return index;
 	}
 
