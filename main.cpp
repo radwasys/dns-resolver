@@ -17,7 +17,7 @@ int main() {
 
   Header header = resolver.getHeader();
 
-	vector<Record> an_records = resolver.getAnswerRecords();
+	vector<Record> cn_records = resolver.getCNRecords();
 	vector<Record> ns_records = resolver.getNSRecords();
 	vector<Record> a_records = resolver.getARecords();
 	vector<Record> aaaa_records = resolver.getDoubleAARecords();
@@ -47,7 +47,7 @@ int main() {
 
   header = second_resolver.getHeader();
 
-	an_records = second_resolver.getAnswerRecords();
+	cn_records = second_resolver.getCNRecords();
 	ns_records = second_resolver.getNSRecords();
 	a_records = second_resolver.getARecords();
 	aaaa_records = second_resolver.getDoubleAARecords();
@@ -75,12 +75,11 @@ int main() {
 
 	// Send DNS Request to NS Server
 	dns_response = server_contactor.sendQuery(ip_addr);
-	for(int i=0; i<30; i++) cout << hex << bitset<8>(dns_response[i]).to_ulong() << endl;
   ResponseResolver third_resolver(dns_response);
 
   header = third_resolver.getHeader();
 
-	an_records = third_resolver.getAnswerRecords();
+	cn_records = third_resolver.getCNRecords();
 	ns_records = third_resolver.getNSRecords();
 	a_records = third_resolver.getARecords();
 	aaaa_records = third_resolver.getDoubleAARecords();
@@ -89,7 +88,7 @@ int main() {
 
 	// Get IPV4 Address
 
-	cout << "answer size: " << an_records.size() << endl;
+	cout << "CNAME size: " << cn_records.size() << endl;
 	cout << "NS size: " << ns_records.size() << endl;
 	cout << "A size: " << a_records.size() << endl;
 	cout << "AAAA size: " << aaaa_records.size() << endl;

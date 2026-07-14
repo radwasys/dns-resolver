@@ -18,8 +18,8 @@ public:
 class RecordResolver {
 private:
 	vector<uint8_t> records_bytes;
-  vector<Record> an_records;
   vector<Record> ns_records;
+	vector<Record> cn_records;
 	vector<Record> a_records;
 	vector<Record> aaaa_records;
 
@@ -88,6 +88,9 @@ public:
 			if(record.type == 2){ // NS Record
 				record.data = resolveNSData(unresolved_data, response);
 				ns_records.push_back(record);
+			} else if(record.type == 5){
+				record.data = resolveNSData(unresolved_data, response);
+				cn_records.push_back(record);
 			} else if(record.type == 1){
 				record.data = resolveIpAddr(unresolved_data, response);
 				a_records.push_back(record);
@@ -139,9 +142,9 @@ public:
 			return resolvedData;
 	}
 
-  vector<Record> getAnRecords() { return an_records; }
-
   vector<Record> getNsRecords() { return ns_records; }
+	
+  vector<Record> getCNRecords() { return cn_records; }
 
   vector<Record> getARecords() { return a_records; }
 

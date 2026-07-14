@@ -30,8 +30,8 @@ const int HEADER_BYTES = 12;
 class ResponseResolver {
 private:
   Header header;
-  vector<Record> an_records;
   vector<Record> ns_records;
+	vector<Record> cn_records;
   vector<Record> a_records;
   vector<Record> aaaa_records;
 
@@ -48,8 +48,8 @@ public:
     RecordResolver record_resolver(response, start_index, header.answer_number, header.authority_number, header.additional_number);
 
 	  // Separate Records
-    an_records = record_resolver.getAnRecords();
     ns_records = record_resolver.getNsRecords();
+		cn_records = record_resolver.getCNRecords();
     a_records = record_resolver.getARecords();
     aaaa_records = record_resolver.getAAAARecords();
   }
@@ -128,6 +128,29 @@ public:
 			cout << endl;
 		}
 
+		for(auto record : cn_records){
+			cout << "===============CNAME RECORD===============" << endl;
+			cout << "Record name: ";
+			for(auto label : record.name){
+				 for(auto chr : label)
+					 cout << char(bitset<8>(chr).to_ulong());
+				 cout << ".";
+			}
+			cout << endl;
+			cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
+			cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
+			cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
+			cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
+			cout << "Data: ";
+			for(auto label : record.data){
+				 for(auto chr : label)
+					 cout << char(bitset<8>(chr).to_ulong());
+				 cout << ".";
+			}
+			cout << endl;
+		}
+
+
 
 		for(auto record : a_records){
 			cout << "===============A RECORD===============" << endl;
@@ -179,9 +202,9 @@ public:
 
   Header getHeader() { return header; }
 
-  vector<Record> getAnswerRecords() { return an_records; }
-
   vector<Record> getNSRecords() { return ns_records; }
+
+  vector<Record> getCNRecords() { return cn_records; }
 
   vector<Record> getDoubleAARecords() { return aaaa_records; }
 
