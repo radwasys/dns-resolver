@@ -1,30 +1,41 @@
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
+#include <vector>
+#include <boost/asio.hpp>
+#include <iostream>
+#include <string>
+using namespace std;
 
-namespace beast = boost::beast;
-namespace http = beast::http;
-namespace net = boost::asio;
-using tcp = net::ip::tcp;
+using boost::asio::ip::tcp;
 
 int main() {
-    net::io_context ioc;
-    tcp::acceptor acceptor(ioc, tcp::endpoint(tcp::v4(), 8080));
+		string ip_addr = "104.154.89.105";
+		string host = "http.badssl.com";
+		int port = 80;
+
+    boost::asio::io_context io_context;
+
+		tcp::endpoint endpoints(boost::asio::ip::make_address(ip_addr), port);
+
+    tcp::socket socket(io_context);
+		socket.connect(endpoints);
+
+		string request = "GET / HTTP/1.1\r\nHost: ";
+		request += host + "\r\n";
+		request += "\r\n";
+		cout << request;
+		boost::asio::write(socket, boost::asio::buffer(request));
 
     while (true) {
-        tcp::socket socket(ioc);
-        acceptor.accept(socket);
+        vector<char> recv_buf(4096);
+        boost::system::error_code error;
 
-        beast::flat_buffer buffer;
-        http::request<http::string_body> req;
-        http::read(socket, buffer, req);
+        size_t len = socket.read_some(boost::asio::buffer(recv_buf), error);
 
-        http::response<http::string_body> res(http::status::ok, req.version());
-        res.set(http::field::content_type, "text/plain");
-        res.body() = "Hello, world!";
-        res.prepare_payload();
+        if (error == boost::asio::error::eof)
+            break;
+        else if (error)
+            throw boost::system::system_error(error);
 
-        http::write(socket, res);
+        std::cout.write(recv_buf.data(), len);
     }
 
     return 0;

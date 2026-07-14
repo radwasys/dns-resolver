@@ -58,13 +58,10 @@ public:
 		records_bytes = vector<uint8_t>(response.begin()+start_index, response.end());
     int index = start_index;
 
-		cout << "START OF RECORDS: " << index << endl;
-
 		for(int i=0; i < ns_number+add_number; i++){
 			Record record;
 			index = resolveRecord(response, index, record);
 		}	
-		printRecords();
   }
 
 	int resolveRecord(vector<uint8_t> response, int start_index, Record& record){
@@ -92,10 +89,10 @@ public:
 				record.data = resolveNSData(unresolved_data, response);
 				ns_records.push_back(record);
 			} else if(record.type == 1){
-				record.data = resolveAData(unresolved_data, response);
+				record.data = resolveIpAddr(unresolved_data, response);
 				a_records.push_back(record);
 			} else if(record.type == 28){
-				record.data = resolveAData(unresolved_data, response);
+				record.data = resolveIpAddr(unresolved_data, response);
 				aaaa_records.push_back(record);
 			}
 			else cout << "UNIDENTIFIED: " << dec << record.type << endl;
@@ -134,81 +131,12 @@ public:
 		return resolvedData;
 	}
 
-	vector<vector<uint8_t>> resolveAData(vector<uint8_t> data, vector<uint8_t> response){
+	vector<vector<uint8_t>> resolveIpAddr(vector<uint8_t> data, vector<uint8_t> response){
 			vector<vector<uint8_t>> resolvedData;
 			for(auto section : data){
 				resolvedData.push_back({section});
 			}
 			return resolvedData;
-	}
-
-	void printRecords(){
-		for(auto record : ns_records){
-			cout << "===============NS RECORD===============" << endl;
-			cout << "Record name: ";
-			for(auto label : record.name){
-				 for(auto chr : label)
-					 cout << char(bitset<8>(chr).to_ulong());
-				 cout << ".";
-			}
-			cout << endl;
-			cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
-			cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
-			cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
-			cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
-			cout << "Data: ";
-			for(auto label : record.data){
-				 for(auto chr : label)
-					 cout << char(bitset<8>(chr).to_ulong());
-				 cout << ".";
-			}
-			cout << endl;
-		}
-
-
-		for(auto record : a_records){
-			cout << "===============A RECORD===============" << endl;
-			cout << "Record name: ";
-			for(auto label : record.name){
-				for(auto chr : label)
-					cout << char(bitset<8>(chr).to_ulong());
-				cout << ".";
-			}
-			cout << endl;
-			cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
-			cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
-			cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
-			cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
-			cout << "Data: ";
-			for(auto label : record.data){
-				 for(auto chr : label)
-					 cout << dec << bitset<8>(chr).to_ulong();
-				 cout << ".";
-			}
-			cout << endl;
-		}
-
-		for(auto record : aaaa_records){
-			cout << "===============AAAA RECORD===============" << endl;
-			cout << "Record name: ";
-			for(auto label : record.name){
-				for(auto chr : label)
-					cout << char(bitset<8>(chr).to_ulong());
-				cout << ".";
-			}
-			cout << endl;
-			cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
-			cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
-			cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
-			cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
-			cout << "Data: ";
-			for(auto label : record.data){
-				 for(auto chr : label)
-					 cout << dec << bitset<8>(chr).to_ulong();
-				 cout << ".";
-			}
-			cout << endl;
-		}
 	}
 
   vector<Record> getAnRecords() { return an_records; }

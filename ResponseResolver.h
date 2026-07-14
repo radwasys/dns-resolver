@@ -105,6 +105,55 @@ public:
     return head;
   }
 
+	void printRecords(){
+		for(auto record : ns_records){
+			cout << "===============NS RECORD===============" << endl;
+			cout << "Record name: ";
+			for(auto label : record.name){
+				 for(auto chr : label)
+					 cout << char(bitset<8>(chr).to_ulong());
+				 cout << ".";
+			}
+			cout << endl;
+			cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
+			cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
+			cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
+			cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
+			cout << "Data: ";
+			for(auto label : record.data){
+				 for(auto chr : label)
+					 cout << char(bitset<8>(chr).to_ulong());
+				 cout << ".";
+			}
+			cout << endl;
+		}
+
+
+		for(auto record : a_records){
+			cout << "===============A RECORD===============" << endl;
+			cout << "Record name: ";
+			for(auto label : record.name){
+				for(auto chr : label)
+					cout << char(bitset<8>(chr).to_ulong());
+				cout << ".";
+			}
+			cout << endl;
+			cout << "type: " << bitset<16>(record.type).to_ulong() << endl;
+			cout << "class: " << bitset<16>(record.class_name).to_ulong() << endl;
+			cout << "ttl: " << bitset<32>(record.time_to_live).to_ulong() << endl;
+			cout << "data_len: " << bitset<16>(record.data_len).to_ulong() << endl;
+			cout << "Data: ";
+			for(auto label : record.data){
+				 for(auto chr : label)
+					 cout << dec << bitset<8>(chr).to_ulong();
+				 cout << ".";
+			}
+			cout << endl;
+		}
+
+	}
+
+
   bool hasTrauncation() { return header.flags.isTruncated; }
 
   bool hasError() { return header.flags.error_code.to_string() == "0000"; }

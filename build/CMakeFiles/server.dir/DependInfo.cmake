@@ -8,8 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/radwa/Projects/cpp/dns-resolver/server.cpp" "CMakeFiles/server.dir/server.cpp.o" "gcc" "CMakeFiles/server.dir/server.cpp.o.d"
-  "" "server" "gcc" "CMakeFiles/server.dir/link.d"
+  "/home/drrad/Projects/cpp/dns-resolver/server.cpp" "CMakeFiles/server.dir/server.cpp.o" "gcc" "CMakeFiles/server.dir/server.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
