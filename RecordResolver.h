@@ -88,13 +88,13 @@ public:
 			if(record.type == 2){ // NS Record
 				record.data = resolveNSData(unresolved_data, response);
 				ns_records.push_back(record);
-			} else if(record.type == 5){
+			} else if(record.type == 5){ // CNAME 
 				record.data = resolveNSData(unresolved_data, response);
 				cn_records.push_back(record);
-			} else if(record.type == 1){
+			} else if(record.type == 1){ // A
 				record.data = resolveIpAddr(unresolved_data, response);
 				a_records.push_back(record);
-			} else if(record.type == 28){
+			} else if(record.type == 28){ // AAAA
 				record.data = resolveIpAddr(unresolved_data, response);
 				aaaa_records.push_back(record);
 			}
