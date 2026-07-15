@@ -3,9 +3,12 @@
 
 CMakeFiles/app.dir/main.cpp.o
  /home/drrad/Projects/cpp/dns-resolver/main.cpp
- /home/drrad/Projects/cpp/dns-resolver/RecordResolver.h
- /home/drrad/Projects/cpp/dns-resolver/ResponseResolver.h
- /home/drrad/Projects/cpp/dns-resolver/ServerContactor.h
+ /home/drrad/Projects/cpp/dns-resolver/Flags.h
+ /home/drrad/Projects/cpp/dns-resolver/Header.h
+ /home/drrad/Projects/cpp/dns-resolver/Record.h
+ /home/drrad/Projects/cpp/dns-resolver/RecordParser.h
+ /home/drrad/Projects/cpp/dns-resolver/Resolver.h
+ /home/drrad/Projects/cpp/dns-resolver/ResponseParser.h
  /usr/include/alloca.h
  /usr/include/arpa/inet.h
  /usr/include/asm-generic/bitsperlong.h

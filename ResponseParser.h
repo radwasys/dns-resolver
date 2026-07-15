@@ -1,4 +1,5 @@
-#include "RecordResolver.h"
+#pragma once
+
 #include <bits/stdc++.h>
 #include <bitset>
 #include <cstdint>
@@ -6,28 +7,13 @@
 #include <sys/ucontext.h>
 using namespace std;
 
-struct Flags {
-  bool isResponse;
-  bitset<4> opcode;
-  bool isAuthoritative;
-  bool isTruncated;
-  bool recursionDesired;
-  bool recursionAvailable;
-  bitset<4> error_code;
-};
-
-struct Header {
-  uint16_t xid;
-  Flags flags;
-  uint16_t question_number;
-  uint16_t answer_number;
-  uint16_t authority_number;
-  uint16_t additional_number;
-};
+#include "RecordParser.h"
+#include "Record.h"
+#include "Header.h"
 
 const int HEADER_BYTES = 12;
 
-class ResponseResolver {
+class ResponseParser {
 private:
   Header header;
   vector<Record> ns_records;
@@ -36,22 +22,18 @@ private:
   vector<Record> aaaa_records;
 
 public:
-  ResponseResolver(vector<uint8_t> response) {
-		// Get Header
-    vector<uint8_t> header_bytes = getHeaderBytes(response);
-    header = resolveHeader(header_bytes);
-
+  ResponseParser(vector<uint8_t> response) : header(getHeaderBytes(response)){
 		// Get Records
     int start_index = getStartOfRecords(response);
 
 		// Resolve Records
-    RecordResolver record_resolver(response, start_index, header.answer_number, header.authority_number, header.additional_number);
+    RecordParser record_parser(response, start_index, header.answer_number, header.authority_number, header.additional_number);
 
 	  // Separate Records
-    ns_records = record_resolver.getNsRecords();
-		cn_records = record_resolver.getCNRecords();
-    a_records = record_resolver.getARecords();
-    aaaa_records = record_resolver.getAAAARecords();
+    ns_records = record_parser.getNsRecords();
+		cn_records = record_parser.getCNRecords();
+    a_records = record_parser.getARecords();
+    aaaa_records = record_parser.getAAAARecords();
   }
 
   vector<uint8_t> getHeaderBytes(vector<uint8_t> response) {
@@ -73,37 +55,6 @@ public:
     return start_index+1;
   }
 
-  uint16_t convertBytestoint(uint8_t x, uint8_t y) {
-    string bit1 = bitset<8>(x).to_string();
-    string bit2 = bitset<8>(y).to_string();
-    return bitset<16>(bit1 + bit2).to_ulong();
-  }
-
-  Flags resolveFlags(uint16_t flags) {
-    string flags_str = bitset<16>(flags).to_string();
-    Flags flag_final;
-    flag_final.isResponse = (flags_str[0] == '1');
-    flag_final.opcode = bitset<4>(flags_str.substr(1, 4));
-    flag_final.isAuthoritative = (flags_str[5] == '1');
-    flag_final.isTruncated = (flags_str[6] == '1');
-    flag_final.recursionDesired = (flags_str[7] == '1');
-    flag_final.recursionAvailable = (flags_str[8] == '1');
-    flag_final.error_code = bitset<4>(flags_str.substr(12, 4));
-    return flag_final;
-  }
-
-  Header resolveHeader(vector<uint8_t> header_bytes) {
-    Header head;
-    head.xid = convertBytestoint(header_bytes[0], header_bytes[1]);
-    uint16_t flags_int = convertBytestoint(header_bytes[2], header_bytes[3]);
-    head.flags = resolveFlags(flags_int);
-    head.question_number = convertBytestoint(header_bytes[4], header_bytes[5]);
-    head.answer_number = convertBytestoint(header_bytes[6], header_bytes[7]);
-    head.authority_number = convertBytestoint(header_bytes[8], header_bytes[9]);
-    head.additional_number =
-        convertBytestoint(header_bytes[10], header_bytes[11]);
-    return head;
-  }
 
 	void printRecords(){
 		for(auto record : ns_records){

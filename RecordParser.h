@@ -1,3 +1,5 @@
+#pragma once
+
 #include <bits/stdc++.h>
 #include <bitset>
 #include <cstdint>
@@ -5,17 +7,9 @@
 #include <vector>
 using namespace std;
 
-struct Record {
-public:
-	vector<vector<uint8_t>> name;
-  uint16_t type;
-  uint16_t class_name;
-  uint32_t time_to_live;
-  uint16_t data_len;
-  vector<vector<uint8_t>> data;
-};
+#include "Record.h"
 
-class RecordResolver {
+class RecordParser {
 private:
 	vector<uint8_t> records_bytes;
   vector<Record> ns_records;
@@ -51,7 +45,7 @@ public:
 	}
 
 
-  RecordResolver(vector<uint8_t> response, int start_index, int an_number, int ns_number,
+  RecordParser(vector<uint8_t> response, int start_index, int an_number, int ns_number,
                  int add_number) {
 
 		int total_records = an_number + ns_number + add_number;

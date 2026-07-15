@@ -1,3 +1,5 @@
+#pragma once
+
 #include <bits/stdc++.h>
 #include <cstddef>
 #include <cstdint>
@@ -9,7 +11,8 @@ using namespace std;
 #include <boost/asio/ip/address.hpp>
 using boost::asio::ip::udp;
 
-#include "ResponseResolver.h"
+#include "ResponseParser.h"
+#include "Record.h"
 
 enum ServerLevel { ROOT, SECONDARY };
 
@@ -24,7 +27,6 @@ class Resolver {
 			bool isDomainNameSet = false;
 
 			Header current_header;
-			string current_domain_name;
 			vector<Record> a_records;
 			vector<Record> cn_records;
 			vector<Record> ns_records;
@@ -52,22 +54,35 @@ class Resolver {
 
 		public:
 
-			Resolver(string domain_name) : socket(io_context){
+			Resolver() : socket(io_context), current_header(){
 				socket.open(udp::v4());
+			}
+
+			string getIpofDomainName(string domain_name){
 				string root_address = getIpAddress(ServerLevel::ROOT);
 				string final_address = resolveDomainName(ServerLevel::ROOT, domain_name, root_address);
+				return final_address;
 			}
 
 			string resolveDomainName(ServerLevel srvr_lvl, string domain_name, string ip_address){
 				vector<uint8_t> send_buf = setDomainName(domain_name);
 				sendQuery(ip_address, send_buf);
+				
+				cout << "=============================" << endl;
+				cout << "DOMAIN NAME: " << domain_name << endl;
+				cout << "IP ADDRESS: " << ip_address << endl;
+				cout << "ANSWER: " << current_header.answer_number << endl;
+				cout << "CNAME: " << cn_records.size() << endl;
+				cout << "NS: " << ns_records.size() << endl;
+				cout << "A: " << a_records.size() << endl;
+				cout << "============================" << endl;
 
 				if(current_header.answer_number != 0 && cn_records.size() > 0)
 					return resolveDomainName(ServerLevel::SECONDARY, getDataFromRecord(cn_records[0]), ip_address);
-				else if(current_header.answer_number == 0 && a_records.size() > 0)
-					return resolveDomainName(ServerLevel::SECONDARY, domain_name, getDataFromRecord(a_records[0]));
 				else if(current_header.answer_number != 0 && a_records.size() > 0)
 					return getDataFromRecord(a_records[0]);
+				else if(current_header.answer_number == 0 && a_records.size() > 0)
+					return resolveDomainName(ServerLevel::SECONDARY, domain_name, getDataFromRecord(a_records[0]));
 				else if(current_header.answer_number == 0 && a_records.size() == 0){
 					string ns_address = resolveDomainName(ServerLevel::ROOT, getDataFromRecord(ns_records[0]), getIpAddress(ServerLevel::ROOT));
 					return resolveDomainName(ServerLevel::SECONDARY, domain_name, ns_address);
@@ -115,7 +130,7 @@ class Resolver {
 						for(auto x : label){
 							if(record.type == 1)
 								data_str += to_string(bitset<8>(x).to_ulong());
-							else if(record.type == 5 || record.type == 41)
+							else if(record.type == 5 || record.type == 2)
 								data_str += char(bitset<8>(x).to_ulong());
 						}
 						data_str += ".";
@@ -132,14 +147,13 @@ class Resolver {
 				udp::endpoint sender_endpoint;
 				size_t len = socket.receive_from(boost::asio::buffer(recv_buf), sender_endpoint);
 
-				ResponseResolver parser(recv_buf);
+				ResponseParser parser(recv_buf);
 				current_header = parser.getHeader();
 				a_records = parser.getARecords();
 				cn_records = parser.getCNRecords();
-				ns_records = parser.getCNRecords();
+				ns_records = parser.getNSRecords();
 
 				return recv_buf;
 			}
-
 
 };

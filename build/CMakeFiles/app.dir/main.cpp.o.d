@@ -1,8 +1,7 @@
 CMakeFiles/app.dir/main.cpp.o: \
  /home/drrad/Projects/cpp/dns-resolver/main.cpp \
  /usr/include/stdc-predef.h \
- /home/drrad/Projects/cpp/dns-resolver/ResponseResolver.h \
- /home/drrad/Projects/cpp/dns-resolver/RecordResolver.h \
+ /home/drrad/Projects/cpp/dns-resolver/Resolver.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/stdc++.h \
  /usr/include/c++/13/cassert \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
@@ -332,7 +331,6 @@ CMakeFiles/app.dir/main.cpp.o: \
  /usr/include/c++/13/filesystem /usr/include/c++/13/bits/fs_fwd.h \
  /usr/include/c++/13/bits/fs_path.h /usr/include/c++/13/bits/fs_dir.h \
  /usr/include/c++/13/bits/fs_ops.h /usr/include/c++/13/memory_resource \
- /home/drrad/Projects/cpp/dns-resolver/ServerContactor.h \
  /usr/include/boost/asio.hpp \
  /usr/include/boost/asio/any_completion_executor.hpp \
  /usr/include/boost/asio/detail/config.hpp /usr/include/boost/config.hpp \
@@ -1290,4 +1288,9 @@ CMakeFiles/app.dir/main.cpp.o: \
  /usr/include/boost/asio/windows/stream_handle.hpp \
  /usr/include/boost/asio/writable_pipe.hpp \
  /usr/include/boost/asio/write_at.hpp \
- /usr/include/boost/asio/impl/write_at.hpp
+ /usr/include/boost/asio/impl/write_at.hpp \
+ /home/drrad/Projects/cpp/dns-resolver/ResponseParser.h \
+ /home/drrad/Projects/cpp/dns-resolver/RecordParser.h \
+ /home/drrad/Projects/cpp/dns-resolver/Record.h \
+ /home/drrad/Projects/cpp/dns-resolver/Header.h \
+ /home/drrad/Projects/cpp/dns-resolver/Flags.h
